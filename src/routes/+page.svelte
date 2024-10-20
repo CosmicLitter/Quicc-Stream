@@ -7,7 +7,6 @@
 	import { flip } from 'svelte/animate';
 	import { qQueue } from '$lib/stores/stores';
 	import { viewers } from '$lib/stores/stores';
-	import { get } from 'svelte/store';
 	import { count } from '$lib/stores/stores';
 	import { party } from '$lib/stores/stores';
 	import type { Viewer } from '$lib/types';
@@ -208,8 +207,20 @@
 		dropFromOthersDisabled = $party.members.length >= $party.max_size;
 	};
 
-	function RemoveViewer(id: number) {
+	function RemoveFromQueue(id: number) {
 		$qQueue = $qQueue.filter((t) => t.id != id);
+		$party.members = $party.members.filter((t) => t.id != id);
+	}
+
+	function RemoveViewer(id: number) {
+		viewers.update((viewers) => {
+			return viewers.map((viewer) => {
+				if (viewer.id === id) {
+					return { ...viewer, participation_count: viewer.participation_count + 1 };
+				}
+				return viewer;
+			});
+		});
 		$party.members = $party.members.filter((t) => t.id != id);
 	}
 
@@ -290,7 +301,7 @@
 								variant="ghost"
 								size="sm"
 								class="rounded-sm"
-								on:click={() => RemoveViewer(viewer.id)}><Icons.x class="w-3, h-3" /></Button
+								on:click={() => RemoveFromQueue(viewer.id)}><Icons.x class="w-3, h-3" /></Button
 							>
 						</div>
 					</div>
@@ -348,7 +359,7 @@
 								variant="ghost"
 								size="sm"
 								class="rounded-sm"
-								on:click={() => RemoveViewer(viewer.id)}><Icons.x class="w-3, h-3" /></Button
+								on:click={() => RemoveViewer(viewer.id)}><Icons.check class="w-3, h-3" /></Button
 							>
 						</div>
 					</div>

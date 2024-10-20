@@ -3,6 +3,7 @@ import Trash from "lucide-svelte/icons/trash-2"
 import X from "lucide-svelte/icons/x"
 import Minus from "lucide-svelte/icons/minus"
 import Plus from "lucide-svelte/icons/plus"
+import Check from "lucide-svelte/icons/check"
 
 import type { SvelteComponent } from "svelte";
 
@@ -14,5 +15,6 @@ export const Icons = {
   trash: Trash,
   x: X,
   plus: Plus,
-  minus: Minus
+  minus: Minus,
+  check: Check
 }
