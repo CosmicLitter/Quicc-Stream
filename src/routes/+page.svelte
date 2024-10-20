@@ -224,11 +224,13 @@
 	function EndParty() {
 		for (let member in $party.members) {
 			const viewerID = $party.members[member].id;
-			// console.log(viewerID);
-			$viewers.map((viewer) => {
-				if (viewer.id === viewerID) {
-					viewer.participation_count++;
-				}
+			viewers.update((currentViewers) => {
+				return currentViewers.map((viewer) => {
+					if (viewer.id === viewerID) {
+						return { ...viewer, participation_count: viewer.participation_count + 1 };
+					}
+					return viewer;
+				});
 			});
 		}
 		$party.members = [];
