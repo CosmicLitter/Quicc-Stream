@@ -240,7 +240,7 @@
 		<!-- <h2 class="place-self-center font-bold">Quicc Stream</h2> -->
 		<div class="mx-auto gap-2 p-4">
 			<Button
-				href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=wryq0ptbcqok7crz9ajvlj25e05tqp&redirect_uri=http://localhost:5173/oauth&scope=user%3Aread%3Achat"
+				href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=wryq0ptbcqok7crz9ajvlj25e05tqp&redirect_uri=http://localhost:4173/oauth&scope=user%3Aread%3Achat"
 			>
 				<Icons.twitch class="mr-1 h-5 w-5" />
 				Get Token
