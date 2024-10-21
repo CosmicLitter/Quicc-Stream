@@ -8,3 +8,5 @@ export interface Party {
 	max_size: number;
 	members: Viewer[]
 }
+
+export interface Dueller extends Viewer { };

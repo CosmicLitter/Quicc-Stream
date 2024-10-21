@@ -8,8 +8,10 @@ let partylist: Party = {
 	max_size: 3,
 	members: []
 };
+let duellist: Viewer[] = [];
 
 export const viewers = persisted('viewers', viewerslist)
 export const qQueue = persisted('queue', queue)
 export const count = persisted('count', 0)
 export const party = persisted('party', partylist)
+export const duels = persisted('duels', duellist)
