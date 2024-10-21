@@ -13,7 +13,6 @@
 
 	// let queue = $qQueue;
 
-	const API_KEY = 'AIzaSyBUU3Yy_ma4esWHiqCldepElVEyDA6YKRc';
 	const CHANNEL_ID = 'UCvjgXvBlbQiydffZU7m1_aw';
 
 	const flipDurationMs = 100;
@@ -77,34 +76,33 @@
 		// YoutubeStuff();
 	});
 
-	async function YoutubeStuff() {
-		const res = await fetch(
-			`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&order=date&type=video&key=${API_KEY}`
-		);
-		const data = await res.json();
-		console.log(data);
-
-		let items = data.items;
-
-		// If there is a video id, then there is a live stream happening.
-		let video_id;
-
-		for (let item of items) {
-			if (item.snippet.liveBroadcastContent === 'live') {
-				video_id = item.id.videoId;
-			}
-		}
-
-		if (video_id) {
-			const res = await fetch(
-				`https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails,snippet&id=${video_id}&key=${API_KEY}`
-			);
-			const data = await res.json();
-
-			let live_chat_id = data.snippet.liveStreamingDetails.activeLiveChatId;
-		}
-	}
-	// console.log(userID);
+	// async function YoutubeStuff() {
+	// 	const res = await fetch(
+	// 		`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&order=date&type=video&key=${API_KEY}`
+	// 	);
+	// 	const data = await res.json();
+	// 	console.log(data);
+	//
+	// 	let items = data.items;
+	//
+	// 	// If there is a video id, then there is a live stream happening.
+	// 	let video_id;
+	//
+	// 	for (let item of items) {
+	// 		if (item.snippet.liveBroadcastContent === 'live') {
+	// 			video_id = item.id.videoId;
+	// 		}
+	// 	}
+	//
+	// 	if (video_id) {
+	// 		const res = await fetch(
+	// 			`https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails,snippet&id=${video_id}&key=${API_KEY}`
+	// 		);
+	// 		const data = await res.json();
+	//
+	// 		let live_chat_id = data.snippet.liveStreamingDetails.activeLiveChatId;
+	// 	}
+	// }
 
 	function InitializeWebSocket() {
 		if (socket) return;
@@ -183,12 +181,12 @@
 		// BackupData();
 	});
 
-	function BackupData() {
-		const queue_data = JSON.stringify($qQueue);
-		const viewer_data = JSON.stringify($viewers);
-		fs.writeFileSync('queue.json', queue_data);
-		fs.writeFileSync('viewer.json', viewer_data);
-	}
+	// function BackupData() {
+	// 	const queue_data = JSON.stringify($qQueue);
+	// 	const viewer_data = JSON.stringify($viewers);
+	// 	fs.writeFileSync('queue.json', queue_data);
+	// 	fs.writeFileSync('viewer.json', viewer_data);
+	// }
 
 	async function GetUserID() {
 		const res = await fetch('https://api.twitch.tv/helix/users', {
