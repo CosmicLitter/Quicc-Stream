@@ -11,6 +11,9 @@ importers:
       lucide-svelte:
         specifier: ^0.453.0
         version: 0.453.0(svelte@4.2.19)
+      svelte-copy:
+        specifier: ^1.4.2
+        version: 1.4.2(svelte@4.2.19)
       svelte-dnd-action:
         specifier: ^0.9.52
         version: 0.9.52(svelte@4.2.19)
@@ -1458,6 +1461,11 @@ packages:
       svelte: ^4.0.0 || ^5.0.0-next.0
       typescript: '>=5.0.0'
 
+  svelte-copy@1.4.2:
+    resolution: {integrity: sha512-Q99JvWDzB58JlbVWX2VxjHX/CQ5ayDLUGGJgL2EqU1+3c9CDOtxLrKFZx5CVN5bN/DDl62nxtazz0j3nGX1Xew==}
+    peerDependencies:
+      svelte: ^3.55.0 || ^4.0.0
+
   svelte-dnd-action@0.9.52:
     resolution: {integrity: sha512-f841HB5PCcvp21jsMkxSXCXcsJcGmIPMguN6iI1gXqP9Owcb47+ZUIE5ETUzNJntE9h7dm1wFj2Bm51hRtQ7Lw==}
     peerDependencies:
@@ -2881,6 +2889,10 @@ snapshots:
       typescript: 5.6.3
     transitivePeerDependencies:
       - picomatch
+
+  svelte-copy@1.4.2(svelte@4.2.19):
+    dependencies:
+      svelte: 4.2.19
 
   svelte-dnd-action@0.9.52(svelte@4.2.19):
     dependencies:
