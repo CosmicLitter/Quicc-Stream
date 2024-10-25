@@ -1,24 +1,32 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 	import '../app.css';
-	import { PUBLIC_TWITCH_APP_CLIENT_ID, PUBLIC_YOUTUBE_API_KEY } from '$env/static/public';
+	import { PUBLIC_TWITCH_APP_CLIENT_ID } from '$env/static/public';
 	import {
 		qQueue,
 		q_queue,
 		viewers,
 		fire_team,
-		count,
-		party,
 		duels,
 		duel_id,
 		clan,
 		next_id
 	} from '$lib/stores/stores';
-	import type { Viewer, Member } from '$lib/types';
+	import type { Member } from '$lib/types';
 	import Header from '$lib/components/header/Header.svelte';
-	import { Button } from '$lib/components/ui/button';
+	import { browser } from '$app/environment';
+	import { PubSubHandler } from '@twurple/pubsub';
+	import { api, pubsub_client } from '$lib/twitchauth';
+
+	let reward_id = '0';
+
+	let token;
+	if (browser) {
+		token = localStorage.getItem('Token');
+	}
 
 	const use_mock_server = false;
+	let redeem_handler: PubSubHandler;
 
 	let client_id: string;
 	let client_secret: string;
@@ -26,11 +34,8 @@
 	let socket: WebSocket | null;
 	let session_id: string;
 	let twitch_authenticated = false;
-	const CHANNEL_ID = 'UCs3qwo3NWpC9WviUuQfmlBw';
-	let poll_youtube = false;
+	let user: string;
 	$: twitch_connected = false;
-	// let user_id = '29405430';
-	// let scopes: string[] = ['channel:read:redemptions'];
 
 	onMount(async () => {
 		twitch_authenticated = IsAuthenticated();
@@ -42,6 +47,7 @@
 			await GetUserID();
 			InitializeWebSocket();
 		}
+		InitializePubSub();
 	});
 
 	onDestroy(() => {
@@ -50,7 +56,46 @@
 			socket = null;
 			// twitch_connected = false;
 		}
+		// pubsub_client.removeHandler(redeem_handler);
 	});
+
+	async function GetUser(username: string) {
+		try {
+			const user = await api.users.getUserByName(username);
+			// return {
+			// 	broadcasterType: user?.broadcasterType,
+			// 	displayName: user?.displayName,
+			// 	description: user?.description,
+			// 	userId: user?.id,
+			// 	profilePictureUrl: user?.profilePictureUrl,
+			// 	type: user?.type,
+			// 	name: user?.name
+			// };
+			if (user) return user.id;
+		} catch (error) {
+			console.error('Failed to fetch user:', error);
+			return null;
+		}
+	}
+
+	async function InitializePubSub() {
+		const user_id = await GetUser('q_quicc');
+		pubsub_client.onListenError((handler, error, userInitiated) => {
+			console.log(handler);
+			console.log(error);
+			console.log(userInitiated);
+		});
+
+		redeem_handler = pubsub_client.onRedemption(user_id!, (redemption) => {
+			console.log(redemption);
+			if (redemption.id === reward_id || redemption.rewardId === reward_id) {
+				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
+				$duels = [...$duels, { id: $duel_id, name: redemption.userDisplayName }];
+				$duel_id++;
+				SendChatMessage(`@${redemption.userDisplayName} has been added to the duel list`);
+			}
+		});
+	}
 
 	function GetToken() {
 		return localStorage.getItem('Token');
@@ -203,7 +248,7 @@
 			case 'session_welcome':
 				session_id = data.payload.session.id;
 				ChatSubscription();
-				PointRedeemSubscription();
+				// PointRedeemSubscription();
 				break;
 			case 'notification':
 				switch (data.metadata.subscription_type) {
@@ -328,28 +373,18 @@
 						}
 						break;
 
-					case 'channel.channel_points_automatic_reward_redemption.add':
-						const twitch_login = data.payload.event.user_login;
-						const reward_redeemed = data.payload.event.reward.type;
-						console.log(`${twitch_login} has redeemed ${reward_redeemed}`);
-						console.log('CHANNEL REDEEM DATA: ', data);
-
-						// Find backend name for the duel redeem
-						if (reward_redeemed.toLowerCase() == 'a_duel') {
-							console.log(`${twitch_login} has requested a duel!`);
-							// NOTE : Casting to existing members might overcomplicate this. Instead add twitch usernames to a generic list to process later
-							//
-							// const existing_dueller = $clan.find(
-							// 	(item) => item.twitch_username ===  twitch_login
-							// );
-							//
-							// if (existing_dueller) {
-							//
-							// }
-
-							$duels = [...$duels, { id: $duel_id, name: twitch_login }];
-							$duel_id++;
-						}
+					// case 'channel.channel_points_automatic_reward_redemption.add':
+					// 	const twitch_login = data.payload.event.user_login;
+					// 	const reward_redeemed = data.payload.event.reward.type;
+					// 	console.log(`${twitch_login} has redeemed ${reward_redeemed}`);
+					// 	console.log('CHANNEL REDEEM DATA: ', data);
+					//
+					// 	// Find backend name for the duel redeem
+					// 	if (reward_redeemed.toLowerCase() == 'a_duel') {
+					// 		console.log(`${twitch_login} has requested a duel!`);
+					// 		$duels = [...$duels, { id: $duel_id, name: twitch_login }];
+					// 		$duel_id++;
+					// 	}
 				}
 		}
 	}
@@ -429,129 +464,6 @@
 		}
 		return null;
 	}
-
-	// async function YoutubeStuff() {
-	// 	const res = await fetch(
-	// 		`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&order=date&maxResults=50&type=video&key=${PUBLIC_YOUTUBE_API_KEY}`
-	// 	);
-	// 	const data = await res.json();
-	// 	console.log(data);
-	//
-	// 	let items = data.items;
-	// 	console.log('Items: ', items);
-	//
-	// 	// If there is a video id, then there is a live stream happening.
-	// 	let video_id;
-	//
-	// 	if (items) {
-	// 		for (let item of items) {
-	// 			if (item.snippet.liveBroadcastContent === 'live') {
-	// 				video_id = item.id.videoId;
-	// 			}
-	// 		}
-	// 	}
-	// 	console.log('Live broadcast video id', video_id);
-	//
-	// 	if (video_id) {
-	// 		const res = await fetch(
-	// 			`https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails,snippet&id=${video_id}&key=${PUBLIC_YOUTUBE_API_KEY}`
-	// 		);
-	// 		const streamdata = await res.json();
-	// 		console.log('streamdata', streamdata);
-	//
-	// 		// console.log(streamdata.items[0].liveStreamingDetails.activeLiveChatId);
-	//
-	// 		const live_chat_id = streamdata.items[0].liveStreamingDetails.activeLiveChatId;
-	// 		console.log('live Chat Id', live_chat_id);
-	//
-	// 		await PollChatMessages(live_chat_id);
-	// 	}
-	// }
-	//
-	// async function PollChatMessages(live_chat_id: string) {
-	// 	let next_page_token = '';
-	// 	let polling_interval = 50000;
-	//
-	// 	poll_youtube = true;
-	//
-	// 	while (poll_youtube) {
-	// 		console.log('polling chat');
-	// 		const url = `https://www.googleapis.com/youtube/v3/liveChat/messages?liveChatId=${live_chat_id}&part=snippet,authorDetails&maxResults=2000${next_page_token ? `&pageToken=${next_page_token}` : ``}&key=${PUBLIC_YOUTUBE_API_KEY}`;
-	//
-	// 		const res = await fetch(url);
-	// 		const data = await res.json();
-	// 		console.log(data);
-	//
-	// 		if (data.items) {
-	// 			for (let item of data.items) {
-	// 				let username = item.authorDetails.displayName;
-	// 				let message = item.snippet.displayMessage;
-	//
-	// 				// link command missing argument, display usage
-	// 				// TODO : No youtube chat bot yet, display toast notifications for youtube commands instead.
-	// 				if (message == '!link') {
-	// 					const existing_member = $clan.find((item) => item.twitch_username === username);
-	// 					if (existing_member) {
-	// 						console.log('User already linked with: ', existing_member.d2_username);
-	// 					} else {
-	// 						console.log('User used link command incorrectly');
-	// 					}
-	// 				}
-	//
-	// 				// verify command arguments
-	// 				if (message.startsWith('!link ')) {
-	// 					// Check if twitch user is already on the list and return their linked account, else add and link the specified username
-	// 					const existing_member = $clan.find((item) => item.youtube_username === username);
-	// 					if (existing_member) {
-	// 						// TODO : If we wanted we can change the logic here to update the linked account name instead
-	// 						console.log(
-	// 							`User already linked with destiny account: ${existing_member.d2_username}#${existing_member.d2_id}`
-	// 						);
-	// 					} else {
-	// 						// Validate d2 username and return a member if they exist, otherwise create a new member. Null if command usage was incorrect
-	// 						let member: Member | null = LinkD2Account(message);
-	// 						console.log(member);
-	//
-	// 						if (member) {
-	// 							if (!member.youtube_username) {
-	// 								member.youtube_username = username;
-	// 								// let response = AddMember(member);
-	// 								$clan = [...$clan, member];
-	// 								$next_id++;
-	// 								console.log(`${username} successfully added to members list`);
-	// 							} else {
-	// 								console.log(
-	// 									`${username} is associated with another youtube user: ${member.youtube_username}`
-	// 								);
-	// 							}
-	// 						} else {
-	// 							console.log(`Invalid link command usage from ${username}`);
-	// 						}
-	// 					}
-	// 				}
-	// 			}
-	//
-	// 			// if (data.items && data.items.launch > 0) {
-	// 			// 	data.items.forEach((message: any) => {
-	// 			// 		console.log('New Message: ', message.snippet.displayMessage);
-	// 			// 	});
-	// 			// }
-	//
-	// 			next_page_token = data.nextPageToken || '';
-	// 			// polling_interval = data.pollingIntervalMillis || 5000;
-	//
-	// 			await new Promise((resolve) => setTimeout(resolve, polling_interval));
-	// 		}
-	// 	}
-	// }
-
-	// function StartYoutubePolling() {
-	// 	YoutubeStuff();
-	// }
-	//
-	// function StopYoutubePolling() {
-	// 	poll_youtube = false;
-	// }
 </script>
 
 <Header />
@@ -564,12 +476,4 @@
 	{/if}
 </div>
 
-<!-- <Button on:click={StartYoutubePolling}>Connect YT Chat</Button> -->
-<!-- <Button on:click={StopYoutubePolling}>Disconnect YT Chat</Button> -->
-
-<!-- {#if authenticated} -->
-<!-- 	<Button variant="destructive" on:click={RemoveToken}> -->
-<!-- 		<Icons.trash class="mr-1 h-5 w-5" /> -->
-<!-- 	</Button> -->
-<!-- {/if} -->
 <slot />

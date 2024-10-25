@@ -3,6 +3,7 @@
 	import { Icons } from '$lib/components/icons';
 	import { Button } from '$lib/components/ui/button';
 	import { clan, q_queue, fire_team } from '$lib/stores/stores';
+	import { copy } from 'svelte-copy';
 	export let member: Member;
 
 	function DeleteMember(id: number) {
@@ -42,4 +43,10 @@
 	<Button variant="destructive" size="icon" on:click={() => DeleteMember(member.id)}
 		><Icons.x class="h-4" /></Button
 	>
+	<div
+		class=" m-auto rounded-lg border-2 p-2 hover:bg-white/10"
+		use:copy={`${member.d2_username}#${member.d2_id}`}
+	>
+		<Icons.clipboard_copy />
+	</div>
 </div>

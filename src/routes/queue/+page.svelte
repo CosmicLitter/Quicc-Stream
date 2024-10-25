@@ -84,7 +84,7 @@
 				<Icons.plus class="h-4 w-4" />
 			</Button>
 		</div>
-		<div class="w-full items-center border-r">
+		<div class="w-full items-center overflow-y-auto border-r">
 			<section
 				use:dndzone={{ items: $q_queue, flipDurationMs, dropTargetStyle: {} }}
 				on:consider={handleConsiderQueue}
@@ -149,7 +149,7 @@
 				{/each}
 			</section>
 		</div>
-		<div class="w-full items-center border-l">
+		<div class="w-full items-center overflow-y-auto border-l">
 			<section
 				use:dndzone={{
 					items: $fire_team.members,

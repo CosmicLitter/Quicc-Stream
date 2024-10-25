@@ -39,6 +39,10 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@twurple/api": "^7.2.0",
+		"@twurple/auth": "^7.2.0",
+		"@twurple/eventsub-ws": "^7.2.0",
+		"@twurple/pubsub": "^7.2.0",
 		"lucide-svelte": "^0.453.0",
 		"svelte-copy": "^1.4.2",
 		"svelte-dnd-action": "^0.9.52",
