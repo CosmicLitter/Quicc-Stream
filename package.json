@@ -25,6 +25,7 @@
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.36.0",
 		"globals": "^15.0.0",
+		"lucide-svelte": "^0.453.0",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
 		"prettier-plugin-tailwindcss": "^0.6.5",
@@ -43,9 +44,9 @@
 		"@twurple/auth": "^7.2.0",
 		"@twurple/eventsub-ws": "^7.2.0",
 		"@twurple/pubsub": "^7.2.0",
-		"lucide-svelte": "^0.453.0",
 		"svelte-copy": "^1.4.2",
 		"svelte-dnd-action": "^0.9.52",
-		"svelte-persisted-store": "^0.11.0"
+		"svelte-persisted-store": "^0.11.0",
+		"tslog": "^4.9.3"
 	}
 }

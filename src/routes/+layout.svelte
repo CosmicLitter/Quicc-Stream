@@ -17,8 +17,11 @@
 	import { browser } from '$app/environment';
 	import { PubSubHandler } from '@twurple/pubsub';
 	import { api, pubsub_client } from '$lib/twitchauth';
+	import { fly } from 'svelte/transition';
 
-	let reward_id = '0';
+	export let data;
+
+	let reward_id = '00a32847-d11e-4997-bb9d-99209415728f';
 
 	let token;
 	if (browser) {
@@ -88,11 +91,21 @@
 
 		redeem_handler = pubsub_client.onRedemption(user_id!, (redemption) => {
 			console.log(redemption);
-			if (redemption.id === reward_id || redemption.rewardId === reward_id) {
+			console.log('DUEL REDEMPTION ID:', reward_id);
+			console.log('RECEIVED REDEMPTION ID 1: ', redemption.id, '2: ', redemption.rewardId);
+			if (redemption.rewardId == reward_id) {
 				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
 				$duels = [...$duels, { id: $duel_id, name: redemption.userDisplayName }];
 				$duel_id++;
-				SendChatMessage(`@${redemption.userDisplayName} has been added to the duel list`);
+				// SendChatMessage(`@${redemption.userDisplayName} has been added to the duel list`);
+			} else if (
+				redemption.rewardTitle == 'A Duel' ||
+				redemption.rewardTitle == 'a_duel' ||
+				redemption.rewardTitle == 'a duel'
+			) {
+				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
+				$duels = [...$duels, { id: $duel_id, name: redemption.userDisplayName }];
+				$duel_id++;
 			}
 		});
 	}
@@ -264,13 +277,17 @@
 						// NOTE : Check the old queue, once that queue is empty this can be removed
 						if (message == '!dibs') {
 							if ($qQueue.find((item) => item.viewer === twitch_display_name)) {
-								SendChatMessage(`@${twitch_display_name} You are currently in the queue`);
+								SendChatMessage(
+									`@${twitch_display_name} You are already in the queue! Position: ${$qQueue.findIndex((item) => item.viewer === twitch_display_name) + 1}`
+								);
 								break;
 							}
 
 							// Check if viewer is in the queue
 							if ($q_queue.find((item) => item.twitch_username === username)) {
-								SendChatMessage(`@${twitch_display_name} You are currently in the queue`);
+								SendChatMessage(
+									`@${twitch_display_name} You are already in the queue! Position: ${$q_queue.findIndex((item) => item.twitch_username === username) + 1 + $qQueue.length}`
+								);
 								break;
 							}
 
@@ -476,4 +493,12 @@
 	{/if}
 </div>
 
-<slot />
+{#key data.url}
+	<div
+		in:fly={{ x: -200, duration: 200, delay: 200 }}
+		out:fly={{ x: 200, duration: 200 }}
+		class="h-full"
+	>
+		<slot />
+	</div>
+{/key}

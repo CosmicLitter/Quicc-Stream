@@ -7,7 +7,7 @@
 	// }
 </script>
 
-<div class="flex flex-wrap gap-2 overflow-y-auto p-4">
+<div class="flex flex-wrap gap-6 overflow-y-auto p-4">
 	{#each $clan as member (member.id)}
 		<MemberComponent bind:member />
 	{/each}

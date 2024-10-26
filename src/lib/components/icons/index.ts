@@ -12,6 +12,7 @@ import Youtube from "lucide-svelte/icons/youtube"
 import ChevronsLeft from "lucide-svelte/icons/chevrons-left"
 import ChevronsRight from "lucide-svelte/icons/chevrons-right"
 import ClipboardCopy from "lucide-svelte/icons/clipboard-copy"
+import UserRoundPen from "lucide-svelte/icons/user-round-pen"
 
 
 import type { SvelteComponent } from "svelte";
@@ -33,5 +34,6 @@ export const Icons = {
   youtube: Youtube,
   chevron_left: ChevronsLeft,
   chevron_right: ChevronsRight,
-  clipboard_copy: ClipboardCopy
+  clipboard_copy: ClipboardCopy,
+  user_edit: UserRoundPen
 }

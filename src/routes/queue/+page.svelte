@@ -69,7 +69,7 @@
 </script>
 
 <div class="flex h-full justify-center">
-	<div class="grid w-[800px] grid-cols-2 grid-rows-[auto,auto,1fr] bg-muted/50">
+	<div class="grid w-[800px] grid-cols-2 grid-rows-[auto,auto,1fr] border-x-2 bg-muted/50">
 		<div class="col-span-2 flex h-12 items-center justify-center">
 			<h2 class="text-lg font-semibold">Fireteam Size</h2>
 		</div>
@@ -95,12 +95,12 @@
 					<div
 						in:fly={{ duration: 200, y: 500, opacity: 0.5, easing: quintOut }}
 						animate:flip={{ duration: flipDurationMs }}
-						class="my-2"
+						class="group/member my-2"
 					>
 						<div
-							class="grid grid-cols-[7fr,6fr] rounded-t-lg border-2 bg-slate-800 p-2 hover:bg-primary hover:drop-shadow-lg"
+							class="grid grid-cols-[7fr,6fr] rounded-t-lg border-2 bg-slate-900 p-2 hover:drop-shadow-lg group-hover/member:bg-primary"
 						>
-							<div>
+							<div class="drop-shadow-lg">
 								<p class="font-semibold">{member.d2_username}</p>
 								<p class="font-light italic">
 									#{member.d2_id} | sessions: {member.participation_count}
@@ -128,19 +128,19 @@
 						<div class="grid grid-cols-3 rounded-b-lg border-b">
 							<!-- disable a11y  -->
 							<div
-								class="flex cursor-pointer items-center justify-center rounded-bl-lg border-x bg-slate-900 hover:bg-white/10"
+								class="flex cursor-pointer items-center justify-center rounded-bl-lg border-x bg-slate-800 hover:bg-primary/50"
 								on:click={() => RemoveFromQueue(member.id)}
 							>
 								<Icons.x class="w-4" />
 							</div>
 							<div
-								class="flex cursor-pointer items-center justify-center border-x bg-slate-900 hover:bg-white/10"
+								class="flex cursor-pointer items-center justify-center border-x bg-slate-800 hover:bg-primary/50"
 								use:copy={`${member.d2_username}#${member.d2_id}`}
 							>
 								<Icons.clipboard_copy class="w-4" />
 							</div>
 							<div
-								class="flex cursor-pointer items-center justify-center rounded-br-lg border-x bg-slate-900 hover:bg-white/10"
+								class="flex cursor-pointer items-center justify-center rounded-br-lg border-x bg-slate-800 hover:bg-primary/50"
 							>
 								<Icons.chevron_right class="w-4" />
 							</div>
@@ -165,12 +165,12 @@
 					<div
 						in:fly={{ duration: 200, y: 500, opacity: 0.5, easing: quintOut }}
 						animate:flip={{ duration: flipDurationMs }}
-						class="my-2"
+						class="group/member my-2"
 					>
 						<div
-							class="grid grid-cols-[7fr,6fr] rounded-t-lg border-2 bg-slate-800 p-2 hover:bg-primary hover:drop-shadow-lg"
+							class="grid grid-cols-[7fr,6fr] rounded-t-lg border-2 bg-slate-900 p-2 hover:drop-shadow-lg group-hover/member:bg-primary"
 						>
-							<div>
+							<div class="drop-shadow-lg">
 								<p class="font-semibold">{member.d2_username}</p>
 								<p class="font-light italic">#{member.d2_id}</p>
 							</div>
@@ -196,18 +196,18 @@
 						<div class="grid grid-cols-3 rounded-b-lg border-b">
 							<!-- disable a11y  -->
 							<div
-								class="flex cursor-pointer items-center justify-center rounded-bl-lg border-x bg-slate-900 hover:bg-white/10"
+								class="flex cursor-pointer items-center justify-center rounded-bl-lg border-x bg-slate-800 hover:bg-white/10"
 							>
 								<Icons.chevron_left class="w-4" />
 							</div>
 							<div
-								class="flex cursor-pointer items-center justify-center border-x bg-slate-900 hover:bg-white/10"
+								class="flex cursor-pointer items-center justify-center border-x bg-slate-800 hover:bg-white/10"
 								use:copy={`${member.d2_username}#${member.d2_id}`}
 							>
 								<Icons.clipboard_copy class="w-4" />
 							</div>
 							<div
-								class="flex cursor-pointer items-center justify-center rounded-br-lg border-x bg-slate-900 hover:bg-white/10"
+								class="flex cursor-pointer items-center justify-center rounded-br-lg border-x bg-slate-800 hover:bg-white/10"
 								on:click={() => RemoveFromFireteam(member.id)}
 							>
 								<Icons.check class="w-4" />

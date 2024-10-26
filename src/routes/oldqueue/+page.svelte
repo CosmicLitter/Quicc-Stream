@@ -193,21 +193,21 @@
 				}
 			}
 
-			if (
-				data.metadata.message_type == 'notifaction' &&
-				data.payload.subscription.type == 'channel.channel_points_automatic_reward_redemption.add'
-			) {
-				const username = data.payload.event.user_name;
-				console.log(username, ' redeedmed a duel!');
-				AddViewer(username);
-
-				const viewer = $viewers.find(
-					(user) => user.viewer.toLowerCase() === username.toLowerCase()
-				);
-				if (viewer) {
-					$duels = [...$duels, viewer];
-				}
-			}
+			// if (
+			// 	data.metadata.message_type == 'notifaction' &&
+			// 	data.payload.subscription.type == 'channel.channel_points_automatic_reward_redemption.add'
+			// ) {
+			// 	const username = data.payload.event.user_name;
+			// 	console.log(username, ' redeedmed a duel!');
+			// 	AddViewer(username);
+			//
+			// 	const viewer = $viewers.find(
+			// 		(user) => user.viewer.toLowerCase() === username.toLowerCase()
+			// 	);
+			// 	if (viewer) {
+			// 		$duels = [...$duels, viewer];
+			// 	}
+			// }
 		};
 
 		socket.onclose = (event) => {
