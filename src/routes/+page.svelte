@@ -7,8 +7,10 @@
 	// }
 </script>
 
-<div class="flex flex-wrap gap-6 overflow-y-auto p-4">
-	{#each $clan as member (member.id)}
-		<MemberComponent bind:member />
-	{/each}
+<div class="h-full w-full overflow-y-auto">
+	<div class="flex flex-wrap gap-6 p-4">
+		{#each $clan as member (member.id)}
+			<MemberComponent bind:member />
+		{/each}
+	</div>
 </div>
