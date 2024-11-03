@@ -13,6 +13,10 @@ import ChevronsLeft from "lucide-svelte/icons/chevrons-left"
 import ChevronsRight from "lucide-svelte/icons/chevrons-right"
 import ClipboardCopy from "lucide-svelte/icons/clipboard-copy"
 import UserRoundPen from "lucide-svelte/icons/user-round-pen"
+import Settings from "lucide-svelte/icons/settings-2"
+import House from "lucide-svelte/icons/house"
+import Tickets from "lucide-svelte/icons/tickets"
+import UserX from "lucide-svelte/icons/user-x"
 
 
 import type { SvelteComponent } from "svelte";
@@ -29,11 +33,15 @@ export const Icons = {
   check: Check,
   swords: Swords,
   members: SquareUser,
-  list_start: ListStart,
-  list_end: ListEnd,
+  listStart: ListStart,
+  listEnd: ListEnd,
   youtube: Youtube,
-  chevron_left: ChevronsLeft,
-  chevron_right: ChevronsRight,
-  clipboard_copy: ClipboardCopy,
-  user_edit: UserRoundPen
+  chevronLeft: ChevronsLeft,
+  chevronRight: ChevronsRight,
+  clipboardCopy: ClipboardCopy,
+  userEdit: UserRoundPen,
+  settings: Settings,
+  house: House,
+  tickets: Tickets,
+  userX: UserX
 }

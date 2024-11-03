@@ -1,20 +1,20 @@
-import { browser } from "$app/environment";
-import { PUBLIC_TWITCH_APP_CLIENT_ID } from "$env/static/public";
-import { ApiClient } from "@twurple/api";
-import { StaticAuthProvider } from "@twurple/auth";
-import { PubSubClient } from "@twurple/pubsub";
+import { browser } from '$app/environment'
+import { PUBLIC_TWITCH_APP_CLIENT_ID } from '$env/static/public'
+import { ApiClient } from '@twurple/api'
+import { StaticAuthProvider } from '@twurple/auth'
+import { PubSubClient } from '@twurple/pubsub'
+import { ChatClient } from '@twurple/chat'
 
-
-let api: ApiClient;
-let pubsub_client: PubSubClient
+let twitchApi: ApiClient;
+let pubSubClient: PubSubClient;
+let chatClient: ChatClient;
 
 if (browser) {
 	const token = localStorage.getItem('Token')
-	const auth_provider = new StaticAuthProvider(PUBLIC_TWITCH_APP_CLIENT_ID, token!);
-	pubsub_client = new PubSubClient({ authProvider: auth_provider });
-	api = new ApiClient({ authProvider: auth_provider })
+	const authProvider = new StaticAuthProvider(PUBLIC_TWITCH_APP_CLIENT_ID, token!);
+	pubSubClient = new PubSubClient({ authProvider });
+	twitchApi = new ApiClient({ authProvider });
+	chatClient = new ChatClient({ authProvider });
 }
 
-export { api, pubsub_client }
-
-
+export { twitchApi, pubSubClient, chatClient }
