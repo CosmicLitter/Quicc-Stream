@@ -29,6 +29,9 @@ class Roster {
 
 }
 
+
+// TODO : Title Dibs Queue with current content. Update bot response with title
+
 export class QQueue {
 	private queue: QueueEntry[] = $state([]);
 	private nextId: number = 0;
@@ -47,12 +50,12 @@ export class QQueue {
 	private config: QueueConfig = {
 		baseWeight: 100,
 		sessionFactor: 10,
-		waitPeriod: 60,
+		waitPeriod: 5,
 		timeFactor: 2,
-		maxTimeBonus: 0,
+		maxTimeBonus: 200,
 		maxAbsences: 3,
 		absenceFactor: 10,
-		pityFactor: 200,
+		pityFactor: 20,
 		minimumWeight: 1
 	}
 
@@ -201,63 +204,4 @@ export class QQueue {
 }
 
 export const roster = new Roster;
-export const qQueue = new QQueue(
-	[
-		{
-			id: 1,
-			destinyUsername: "GuardianOne",
-			destinyId: "4589",
-			twitchUsername: "GuardianOneTwitch",
-			youtubeUsername: "GuardianOneYT",
-			queueJoined: new Date("2024-11-01T10:00:00Z"),
-			sessionCount: 5,
-			absences: 1,
-			pityCount: 2,
-			weight: 10
-		},
-		{
-			id: 2,
-			destinyUsername: "WarlockMage",
-			destinyId: "7531",
-			twitchUsername: "WarlockMageLive",
-			queueJoined: new Date("2024-11-01T10:30:00Z"),
-			sessionCount: 3,
-			absences: 0,
-			pityCount: 1,
-			weight: 8
-		},
-		{
-			id: 3,
-			destinyUsername: "TitanDefender",
-			destinyId: "5613",
-			youtubeUsername: "TitanDefenderYT",
-			queueJoined: new Date("2024-11-01T11:00:00Z"),
-			sessionCount: 7,
-			absences: 2,
-			pityCount: 3,
-			weight: 15
-		},
-		{
-			id: 4,
-			destinyUsername: "HunterStalker",
-			destinyId: "8935",
-			queueJoined: new Date("2024-11-01T11:15:00Z"),
-			sessionCount: 6,
-			absences: 1,
-			pityCount: 0,
-			weight: 12
-		},
-		{
-			id: 5,
-			destinyUsername: "ShadowWraith",
-			destinyId: "3470",
-			twitchUsername: "ShadowWraithTV",
-			youtubeUsername: "ShadowWraith",
-			queueJoined: new Date("2024-11-01T11:30:00Z"),
-			sessionCount: 4,
-			absences: 1,
-			pityCount: 2,
-			weight: 9
-		}
-	]
-);
+export const qQueue = new QQueue;
