@@ -1,5 +1,6 @@
 node_modules
 srcBackup/
+packet-lock.json
 
 # Output
 .output
