@@ -105,6 +105,10 @@ export interface QueueConfig {
 export interface SelectionChance {
 	destinyUsername: string;
 	destinyId: string;
+	twitchUsername?: string;
+	youtubeUsername?: string;
+	absences: number;
+	sessionCount: number;
 	probability: number;
 }
 

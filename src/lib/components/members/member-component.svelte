@@ -20,7 +20,7 @@
 
 <div class="group/member rounded-lg">
 	<Card.Root
-		class="w-72 rounded-b-none border-b-0 bg-slate-900 pb-0 drop-shadow-lg group-hover/member:bg-primary/10"
+		class="w-80 rounded-b-none border-b-0 bg-slate-900 pb-0 drop-shadow-lg group-hover/member:bg-primary/10"
 	>
 		<Card.Header>
 			<Card.Title class="flex items-center justify-between">

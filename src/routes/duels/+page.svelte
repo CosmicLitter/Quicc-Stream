@@ -1,5 +1,5 @@
 <script lang="ts">
-	import {duelList, nextDuelId} from '$lib/states/duels.svelte'
+	import { duelList, nextDuelId } from '$lib/states/duels.svelte';
 	import { Icons } from '$lib/components/icons';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -10,18 +10,19 @@
 		if (inputValue.trim() !== '') {
 			AddDueller(inputValue);
 		}
-		inputValue = ''
+		inputValue = '';
 	}
 
 	function AddDueller(name: string) {
-		duelList.value.push({username: name, id: nextDuelId.value})
-		nextDuelId.value++
+		duelList?.value.push({ username: name, id: nextDuelId!.value });
+		nextDuelId!.value++;
 	}
 
 	function RemoveDueller(id: number) {
-		duelList.value = duelList.value.filter((t) => t.id != id)
+		duelList!.value = duelList!.value.filter((t) => t.id != id);
 	}
 </script>
+
 <div class="flex h-full items-center justify-center">
 	<div class="h-full w-96 space-y-2 overflow-y-auto border-x-2 bg-muted/50 p-4">
 		<!-- <button on:click={AddDueller}> Add </button> -->
@@ -35,7 +36,7 @@
 				><Icons.plus class="h-5 w-5" /></Button
 			>
 		</div>
-		{#each duelList.value as dueller (dueller.id)}
+		{#each duelList!.value as dueller (dueller.id)}
 			<div class="flex items-center justify-between rounded-lg border bg-slate-900 p-2">
 				{dueller.username}
 				<Button size="icon" variant="destructive" onclick={() => RemoveDueller(dueller.id)}
@@ -45,4 +46,3 @@
 		{/each}
 	</div>
 </div>
-

@@ -47,7 +47,7 @@ export class QQueue {
 	})
 	#open = $state(false);
 
-	private config: QueueConfig = {
+	config: QueueConfig = $state({
 		baseWeight: 100,
 		sessionFactor: 10,
 		waitPeriod: 5,
@@ -57,7 +57,7 @@ export class QQueue {
 		absenceFactor: 10,
 		pityFactor: 20,
 		minimumWeight: 1
-	}
+	})
 
 	constructor(initialQueue: QueueEntry[] = []) {
 		this.queue = initialQueue;
@@ -180,6 +180,10 @@ export class QQueue {
 		return this.queue.map(entry => ({
 			destinyUsername: entry.destinyUsername,
 			destinyId: entry.destinyId,
+			twitchUsername: entry.twitchUsername,
+			youtubeUsername: entry.youtubeUsername,
+			absences: entry.absences,
+			sessionCount: entry.sessionCount,
 			probability: Number((entry.weight / totalWeight * 100).toFixed(2))
 		}));
 
@@ -200,6 +204,10 @@ export class QQueue {
 
 	set open(value) {
 		this.#open = value
+	}
+
+	ClearQueue() {
+		this.queue = [];
 	}
 }
 

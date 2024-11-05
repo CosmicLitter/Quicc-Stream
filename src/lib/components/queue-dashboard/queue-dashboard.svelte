@@ -6,6 +6,8 @@
 	import { Icons } from '$lib/components/icons';
 	import { copy } from 'svelte-copy';
 	import { toast } from 'svelte-sonner';
+	import * as HoverCard from '$lib/components/ui/hover-card/index';
+	import Youtube from 'lucide-svelte/icons/youtube';
 
 	let queue = $derived(qQueue.GetQueue());
 	let selectedPlayer: QueueEntry | null = $state(null);
@@ -65,7 +67,9 @@
 <div class="h-full w-full max-w-2xl p-4">
 	<!-- Selected player component goes here -->
 	<div class="grid w-full grid-rows-[auto,auto] gap-y-2">
-		<div class="mx-auto mb-4 h-24 w-full max-w-lg rounded-xl border bg-slate-900 drop-shadow-lg">
+		<div
+			class="mx-auto mb-4 h-24 w-full max-w-lg rounded-xl border border-b-slate-950 border-t-slate-700 bg-slate-900 drop-shadow-lg"
+		>
 			<div class="grid h-full grid-cols-[1fr,auto] items-center p-2">
 				{#if selectionPromise}
 					{#await selectionPromise}
@@ -74,20 +78,35 @@
 						</div>
 					{:then player}
 						{#if player}
-							<div class="space-y-1">
-								<div class="flex">
-									<h2 class="text-2xl font-bold">{player.destinyUsername}</h2>
-									<span use:copy={`${player.destinyUsername}#${player.destinyId}`}>
-										<Button
-											variant="ghost"
-											onclick={() => CopyToast(player)}
-											class="-mt-1 ml-2 cursor-pointer rounded-lg px-2 hover:bg-primary/20"
-											><Icons.clipboardCopy class="m-auto h-full w-full" /></Button
-										>
-									</span>
-								</div>
-								<p class="font-light italic">#{player.destinyId}</p>
-							</div>
+							<HoverCard.Root>
+								<HoverCard.Trigger onclick={() => CopyToast(player)}>
+									<div class="space-y-1" use:copy={`${player.destinyUsername}#${player.destinyId}`}>
+										<div class="flex">
+											<h2 class="text-2xl font-bold">{player.destinyUsername}</h2>
+											<span>
+												<Button
+													variant="ghost"
+													class="-mt-1 ml-2 cursor-pointer rounded-lg px-2 hover:bg-primary/20"
+													><Icons.clipboardCopy class="m-auto h-full w-full" /></Button
+												>
+											</span>
+										</div>
+										<p class="font-light italic">#{player.destinyId}</p>
+									</div>
+								</HoverCard.Trigger>
+								<HoverCard.Content
+									class="flex w-full max-w-2xl items-center gap-8 border-b-slate-950 border-t-slate-700 bg-slate-800 drop-shadow-lg"
+								>
+									{#if player.twitchUsername}
+										<p class="flex gap-2"><Icons.twitch />: {player.twitchUsername}</p>
+									{/if}
+									{#if player.youtubeUsername}
+										<p class="flex gap-2"><Icons.youtube />: {player.youtubeUsername}</p>
+									{/if}
+									<p class="flex gap-2"><Icons.members />: {player.sessionCount}</p>
+									<p class="flex gap-2"><Icons.userX />: {player.absences}</p>
+								</HoverCard.Content>
+							</HoverCard.Root>
 							<div class="flex items-center">
 								<Button onclick={AddToFireteam} variant="outline"><Icons.check /></Button>
 								<Button onclick={PlayerNotAvailable} variant="outline"><Icons.userX /></Button>
@@ -97,9 +116,12 @@
 				{/if}
 			</div>
 		</div>
-		<Button onclick={SelectNextPlayer} disabled={!!selectedPlayer} class="mx-auto"
-			>Select Player</Button
-		>
+		<div class="relative flex w-full items-center">
+			<Button onclick={SelectNextPlayer} disabled={!!selectedPlayer} class="mx-auto"
+				>Select Player</Button
+			>
+			<Button onclick={() => qQueue.ClearQueue()} class="absolute right-1">Clear</Button>
+		</div>
 	</div>
 	<div class="">
 		<!-- Main content area -->
@@ -132,11 +154,11 @@
 		<!-- 	</table> -->
 		<!-- </div> -->
 		<!-- Probability view -->
-		<div class="h-full w-full">
-			{#each qQueue.probabilityView as prob}
+		<div class="scrollbar-hidden h-[calc(100vh-255px)] w-full overflow-y-auto scroll-smooth">
+			{#each qQueue.probabilityView as prob (prob.destinyId)}
 				<div
 					transition:fly={{ y: 200, duration: 500 }}
-					class="my-4 w-full rounded border bg-slate-900 p-6 drop-shadow-lg"
+					class="my-4 w-full rounded border border-b-slate-950 border-t-slate-700 bg-slate-900 p-6 drop-shadow-lg"
 				>
 					<h3 class="font-semibold">{prob.destinyUsername}</h3>
 					<div class="mt-2 h-4 w-full rounded bg-slate-600">

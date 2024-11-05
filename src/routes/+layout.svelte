@@ -15,6 +15,9 @@
 	import { PubSubHandler } from '@twurple/pubsub';
 	import { twitchApi, pubSubClient } from '$lib/twitchauth';
 	import { duelList, nextDuelId } from '$lib/states/duels.svelte';
+	import * as Popover from '$lib/components/ui/popover/index';
+	import { Label } from '$lib/components/ui/label';
+	import { Input } from '$lib/components/ui/input';
 
 	// TODO :
 	// - Style sonner
@@ -77,8 +80,8 @@
 			console.log('RECEIVED REDEMPTION ID 1: ', redemption.id, '2: ', redemption.rewardId);
 			if (redemption.rewardId == reward_id) {
 				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
-				duelList.value.push({ id: nextDuelId.value, username: redemption.userDisplayName });
-				nextDuelId.value++;
+				duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
+				nextDuelId!.value++;
 				// SendChatMessage(`@${redemption.userDisplayName} has been added to the duel list`);
 			} else if (
 				redemption.rewardTitle == 'A Duel' ||
@@ -86,8 +89,8 @@
 				redemption.rewardTitle == 'a duel'
 			) {
 				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
-				duelList.value.push({ id: nextDuelId.value, username: redemption.userDisplayName });
-				nextDuelId.value++;
+				duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
+				nextDuelId!.value++;
 			}
 		});
 	}
@@ -151,7 +154,7 @@
 
 	async function PollChatMessages(live_chat_id: string) {
 		let next_page_token = '';
-		let polling_interval = 20000;
+		let polling_interval = 10000;
 
 		poll_youtube = true;
 
@@ -637,6 +640,94 @@
 					{/if}
 					<!-- <Button><Icons.youtube /></Button> -->
 					<div class="ml-auto">
+						<Popover.Root>
+							<Popover.Trigger>
+								<Button>
+									<Icons.settings />
+								</Button>
+							</Popover.Trigger>
+							<Popover.Content class="w-80 -translate-x-6 rounded-xl bg-slate-900">
+								<div class="grid gap-4">
+									<div class="space-y-2">
+										<h4 class="font-medium leading-none">Queue Configuration</h4>
+									</div>
+									<div class="grid gap-2">
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="baseWeight">Base Tickets</Label>
+											<Input
+												id="baseWeight"
+												bind:value={qQueue.config.baseWeight}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="sessionFactor">Session Factor</Label>
+											<Input
+												id="sessionFactor"
+												bind:value={qQueue.config.sessionFactor}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="waitPeriod">Time Period</Label>
+											<Input
+												id="waitPeriod"
+												bind:value={qQueue.config.waitPeriod}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="timeFactor">Time Factor</Label>
+											<Input
+												id="timeFactor"
+												bind:value={qQueue.config.timeFactor}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="maxTimeBonus">Max Time Bonus</Label>
+											<Input
+												id="maxTimeBonus"
+												bind:value={qQueue.config.maxTimeBonus}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="maxAbsences">Max Absences</Label>
+											<Input
+												id="maxAbsences"
+												bind:value={qQueue.config.maxAbsences}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="absenceFactor">Absence Factor</Label>
+											<Input
+												id="absenceFactor"
+												bind:value={qQueue.config.absenceFactor}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="pityFactor">Pity Bonus</Label>
+											<Input
+												id="pityFactor"
+												bind:value={qQueue.config.pityFactor}
+												class="col-span-2 h-8"
+											/>
+										</div>
+										<div class="grid grid-cols-3 items-center gap-4">
+											<Label for="minimumWeight">Minimum Number of Tickets</Label>
+											<Input
+												id="minimumWeight"
+												bind:value={qQueue.config.minimumWeight}
+												class="col-span-2 h-8"
+											/>
+										</div>
+									</div>
+								</div>
+							</Popover.Content>
+						</Popover.Root>
 						{#if qQueue.open}
 							<Button variant="destructive" onclick={() => (qQueue.open = false)}
 								><Icons.tickets /></Button
