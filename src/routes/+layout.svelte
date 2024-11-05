@@ -625,7 +625,7 @@
 						<Button onclick={DeleteToken} variant="destructive"><Icons.twitch /></Button>
 					{:else}
 						<Button
-							href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=wryq0ptbcqok7crz9ajvlj25e05tqp&redirect_uri=http://localhost:4173/oauth&scope=user%3Aread%3Achat+user%3Awrite%3Achat+channel%3Aread%3Aredemptions"
+							href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=wryq0ptbcqok7crz9ajvlj25e05tqp&redirect_uri=http://localhost:5173/oauth&scope=user%3Aread%3Achat+user%3Awrite%3Achat+channel%3Aread%3Aredemptions"
 							><Icons.twitch /></Button
 						>
 					{/if}
