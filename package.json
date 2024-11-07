@@ -3,11 +3,8 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-<<<<<<< HEAD
 		"dev": "vite dev ",
-=======
 		"dev": "vite dev",
->>>>>>> e9ca4dbcc47b05df8bc32c2d20450650e04dc205
 		"build": "vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
