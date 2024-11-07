@@ -1,48 +1,49 @@
-import { PUBLIC_DESTINY_API_KEY } from "$env/static/public";
-import type { RequestEvent } from "@sveltejs/kit";
+import { PUBLIC_DESTINY_API_KEY } from '$env/static/public';
+import type { RequestEvent } from '@sveltejs/kit';
 
 interface DestinyAPIError {
   code: number;
   message: string;
 }
 
-interface DestinyMembership {
-  membershipType: number;
-  membershipId: string;
-  crossSaveOverride: number;
-  lastPlayed?: string;
-
-}
-
 interface SearchResults {
-  bungieNetMembershipId: string;
-  bungieGlobalDisplayNameCode: number;
-  displayName: string;
-  destinyMemberships: DestinyMembership[]
+  bungieNetMembershipId?: string;
+  bungieGlobalDisplayNameCode: string;
+  bungieGlobalDisplayName: string;
+  membershipType: number;
+  membershipId: number;
+  crossSaveOverride: number;
 }
 
 interface UserSearchResponse {
-  Response: {
-    searchResults: SearchResults[]
-  };
+  Response: SearchResults[];
 }
 
-
-interface ProfileResponse {
-  Response: {
-    profile: {
-      data: {
-        dateLastPlayed: string;
-      }
+interface ProfileData {
+  data: {
+    dateLastPlayed: string;
+    userInfo: {
+      crossSaveOverride: number;
+      membershipId: string;
+      bungieGlobalDisplayName: string;
+      bungieGlobalDisplayNameCode: string;
     }
   }
 }
 
-interface MembershipInfo {
-  bungieNetMembershipId: string;
+
+interface DestinyProfileResponse {
+  Response: {
+    profile: ProfileData
+  };
+}
+
+interface ActiveProfile {
+  bungieGlobalDisplayName: string;
+  bungieGlobalDisplayNameCode: string;
   membershipType: number;
-  membershipId: string;
-  lastPlayed?: string;
+  membershipId: number;
+  dateLastPlayed: string;
 }
 
 export class DestinyService {
@@ -50,115 +51,116 @@ export class DestinyService {
   private readonly headers = {
     'X-API-Key': PUBLIC_DESTINY_API_KEY
   }
+
   private fetchFn: typeof fetch;
   private requestTimestamps: number[] = [];
-  private readonly maxRequestsPerSecond: number = 25;
-  private readonly requestWindowMs: number = 1000;
+  private readonly maxRequestsPerSecond = 25;
+  private readonly requestWindowMs = 1000;
 
   constructor(fetchFunction: typeof fetch = fetch) {
-    this.fetchFn = fetchFunction;
+    this.fetchFn = fetchFunction
   }
 
-  async searchUser(username: string): Promise<UserSearchResponse> {
+  async getActiveProfile(username: string, code: string): Promise<ActiveProfile | null> {
     try {
-      const response = await this.rateLimitedRequest(`${this.baseUrl}/User/Search/GlobalName/0/`, {
+      const searchResults = await this.exactSearchUser(username, code);
+      console.log("Search Results In getActiveProfile", searchResults)
+
+      if (!searchResults || searchResults.length === 0) {
+        return null;
+      }
+
+      if (searchResults.length === 1 || searchResults[0].crossSaveOverride !== 0) {
+        const profile = await this.getUserProfile(searchResults[0].membershipType, searchResults[0].membershipId);
+        console.log("Search results length of 1, or cross save enabled", profile)
+        if (!profile) return null;
+
+        return {
+          bungieGlobalDisplayName: searchResults[0].bungieGlobalDisplayName,
+          bungieGlobalDisplayNameCode: searchResults[0].bungieGlobalDisplayNameCode,
+          membershipType: searchResults[0].membershipType,
+          membershipId: searchResults[0].membershipId,
+          dateLastPlayed: profile.Response.profile.data.dateLastPlayed
+        };
+      }
+
+      const profilePromises = searchResults.map(result => this.getUserProfile(result.membershipType, result.membershipId));
+      const profiles = await Promise.all(profilePromises);
+      console.log("profiles:", profiles)
+
+      let mostRecentProfile: ActiveProfile | null = null;
+      let mostRecentDate = new Date(0);
+
+      profiles.forEach((profile, index) => {
+        if (!profile) return;
+        const dateLastPlayed = new Date(profile.Response.profile.data.dateLastPlayed);
+        if (dateLastPlayed > mostRecentDate) {
+          mostRecentDate = dateLastPlayed;
+          mostRecentProfile = {
+            bungieGlobalDisplayName: searchResults[index].bungieGlobalDisplayName,
+            bungieGlobalDisplayNameCode: searchResults[index].bungieGlobalDisplayNameCode,
+            membershipType: searchResults[index].membershipType,
+            membershipId: searchResults[index].membershipId,
+            dateLastPlayed: profile.Response.profile.data.dateLastPlayed
+          };
+        }
+      });
+
+      return mostRecentProfile;
+    } catch (error) {
+      console.error('Error getting active profile:', error);
+      throw error;
+    }
+  }
+
+  async exactSearchUser(username: string, code: string): Promise<SearchResults[] | null> {
+    try {
+      const searchResponse = await this.rateLimitedRequest(`${this.baseUrl}/Destiny2/SearchDestinyPlayerByBungieName/all/`, {
         method: 'POST',
         headers: this.headers,
         body: JSON.stringify({
-          displayNamePrefix: username
+          displayName: username,
+          displayNameCode: code
         })
       });
 
-      if (!response.ok) {
-        const error = await response.json() as DestinyAPIError;
+      if (!searchResponse.ok) {
+        const error = await searchResponse.json() as DestinyAPIError;
         throw new Error(`Destiny API Error: ${error.message}`)
       }
 
-      const data = await response.json();
-      console.log(data)
+      const { Response: searchResults }: UserSearchResponse = await searchResponse.json();
+      console.log(searchResults)
 
-      return data;
+      const profile = await this.getUserProfile(searchResults[0].membershipType, searchResults[0].membershipId)
+      console.log(profile)
+
+      return searchResults;
     } catch (error) {
       console.error('Error searching for user:', error)
       throw error;
     }
   }
 
-  async getProfile(membershipType: number, membershipId: string): Promise<ProfileResponse> {
+  async getUserProfile(membershipType: number, membershipId: number): Promise<DestinyProfileResponse | null> {
     try {
-      const response = await this.rateLimitedRequest(`${this.baseUrl}/Destiny2/${membershipType}/Profile/${membershipId}/?components=100`,
-        {
-          method: 'GET',
-          headers: this.headers
-        }
-      );
+
+      const response = await this.rateLimitedRequest(`${this.baseUrl}/Destiny2/${membershipType}/Profile/${membershipId}?components=100`, {
+        headers: this.headers
+      })
 
       if (!response.ok) {
         const error = await response.json() as DestinyAPIError;
         throw new Error(`Destiny API Error: ${error.message}`)
       }
 
-      return await response.json();
+      return response.json();
+
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      throw error;
+      console.error(`Error fetching profile for membership type ${membershipType} and id ${membershipId}`, error)
+      return null;
     }
   }
-
-  async determineActiveMembership(searchResult: SearchResults): Promise<MembershipInfo> {
-    const { destinyMemberships, bungieNetMembershipId } = searchResult;
-
-    // Check if cross save is enabled and that it equals membershipType
-    const crossSaveEnabled = destinyMemberships.some((membership: DestinyMembership) =>
-      membership.crossSaveOverride !== 0 && membership.crossSaveOverride === membership.membershipType
-    );
-
-    if (crossSaveEnabled) {
-      const activeMembership = destinyMemberships.find((membership: DestinyMembership) =>
-        membership.crossSaveOverride === membership.membershipType
-      )
-
-      if (activeMembership) {
-        return {
-          bungieNetMembershipId,
-          membershipType: activeMembership.membershipType,
-          membershipId: activeMembership.membershipId
-        };
-      }
-    }
-
-    // If cross save is not enabled, check last played date
-    const membershipPromises = destinyMemberships.map(async (membership: DestinyMembership) => {
-      try {
-        const profile = await this.getProfile(membership.membershipType, membership.membershipId);
-        return {
-          ...membership,
-          lastPlayed: profile.Response.profile.data.dateLastPlayed
-        };
-      } catch (error) {
-        console.warn(`Failed to fetch profile for membership ${membership.membershipId}:`, error)
-        return {
-          ...membership,
-          lastPlayed: '1970-01-01t00:00:00z'
-        };
-      }
-    });
-
-    // Oops, I used any :)
-    const membershipsWithDates = await Promise.all(membershipPromises);
-    const mostRecentMembership = membershipsWithDates.sort((a: any, b: any) =>
-      new Date(b.lastPlayed!).getTime() - new Date(a.lastPlayed!).getTime()
-    )[0];
-
-    return {
-      bungieNetMembershipId,
-      membershipType: mostRecentMembership.membershipType,
-      membershipId: mostRecentMembership.membershipId,
-      lastPlayed: mostRecentMembership.lastPlayed
-    };
-  }
-
-
 
   private async rateLimitedRequest(url: string, options: RequestInit): Promise<Response> {
     const now = Date.now();
@@ -183,6 +185,3 @@ export class DestinyService {
 export const getDestinyService = (event?: RequestEvent) => {
   return new DestinyService(event?.fetch ?? fetch);
 }
-
-// export const destinyService = new DestinyService();
-

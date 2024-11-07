@@ -21,7 +21,7 @@ export interface Member {
 	id?: string;
 	d2Username: string;
 	d2Id: string;
-	bungieNetMembershipId: string;
+	bungieNetMembershipId?: string;
 	membershipType: number;
 	membershipId: string;
 	twitchUsername?: string;

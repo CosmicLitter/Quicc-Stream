@@ -9,7 +9,7 @@
 	import { browser } from '$app/environment';
 	import { PUBLIC_TWITCH_APP_CLIENT_ID, PUBLIC_YOUTUBE_API_KEY } from '$env/static/public';
 	import { qQueue, roster } from '$lib/states/global.svelte';
-	import { DestinyService } from '$lib/services/destiny';
+	import { DestinyService, getDestinyService } from '$lib/services/destiny';
 	import type { Member } from '$lib/types';
 	import { toast } from 'svelte-sonner';
 	import { PubSubHandler } from '@twurple/pubsub';
@@ -42,7 +42,8 @@
 
 	let reward_id = '00a32847-d11e-4997-bb9d-99209415728f';
 
-	const destinyService = new DestinyService();
+	// const destinyService = new DestinyService();
+	const destinyService = getDestinyService();
 
 	onMount(async () => {
 		roster.FetchMembers();
@@ -154,7 +155,7 @@
 
 	async function PollChatMessages(live_chat_id: string) {
 		let next_page_token = '';
-		let polling_interval = 10000;
+		let polling_interval = 15000;
 
 		poll_youtube = true;
 
@@ -450,7 +451,7 @@
 								// A valid member was returned, check if they are already on the roster and get their position in the array
 								const existingIndex = roster
 									.GetMembers()
-									.findIndex((item) => item.bungieNetMembershipId === member.bungieNetMembershipId);
+									.findIndex((item) => item.membershipId === member.membershipId);
 
 								if (existingIndex !== -1) {
 									// If the viewer is found in the roster, check if the twitch username field can be populated
@@ -550,15 +551,16 @@
 					return existingMember;
 				} else {
 					console.log(displayName);
-					const searchResponse = await destinyService.searchUser(displayName);
+					// const searchResponse = await destinyService.searchUser(displayName);
+					const searchResponse = await destinyService.getActiveProfile(displayName, accountNumber);
 					console.log(searchResponse);
-					const matchingUser = searchResponse.Response.searchResults.find(
-						(result) => result.bungieGlobalDisplayNameCode === Number(accountNumber)
-					);
-					if (matchingUser) {
-						const activeMembership = await destinyService.determineActiveMembership(matchingUser);
-
-						console.log(activeMembership);
+					// const matchingUser = searchResponse.Response.searchResults.find(
+					// 	(result) => result.bungieGlobalDisplayNameCode === Number(accountNumber)
+					// );
+					if (searchResponse) {
+						// 	const activeMembership = await destinyService.determineActiveMembership(matchingUser);
+						//
+						// 	console.log(activeMembership);
 						const newMember: Member = {
 							d2Username: displayName,
 							d2Id: accountNumber,
@@ -566,9 +568,9 @@
 							// youtubeUsername: member.youtube_username,
 							sessionCount: 0,
 							isActive: true,
-							bungieNetMembershipId: activeMembership.bungieNetMembershipId,
-							membershipId: activeMembership.membershipId,
-							membershipType: activeMembership.membershipType
+							// bungieNetMembershipId: activeMembership.bungieNetMembershipId,
+							membershipId: searchResponse.membershipId.toString(),
+							membershipType: searchResponse.membershipType
 						};
 						return newMember;
 					}
