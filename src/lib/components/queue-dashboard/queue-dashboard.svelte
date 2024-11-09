@@ -7,11 +7,12 @@
 	import { copy } from 'svelte-copy';
 	import { toast } from 'svelte-sonner';
 	import * as HoverCard from '$lib/components/ui/hover-card/index';
-	import Youtube from 'lucide-svelte/icons/youtube';
 
-	let queue = $derived(qQueue.GetQueue());
+	// let queue = $derived(qQueue.GetQueue());
 	let selectedPlayer: QueueEntry | null = $state(null);
 	let selectionPromise: Promise<QueueEntry | null> | null = $state(null);
+
+	let fireTeam: QueueEntry[] = $state([]);
 
 	// $effect(() => {
 	// 	$inspect(queue);
@@ -30,27 +31,54 @@
 	async function AddToFireteam() {
 		if (selectedPlayer) {
 			qQueue.RemoveFromQueue(selectedPlayer);
-			let member = roster
-				.GetMembers()
-				.find(
-					(viewer) =>
-						selectedPlayer?.destinyUsername === viewer.d2Username &&
-						selectedPlayer.destinyId === viewer.d2Id
-				);
-			if (member?.sessionCount) member.sessionCount++;
-			const response = await fetch('/api/db/updatemember', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ member })
-			});
-			if (!response.ok) {
-				console.error(await response.json());
-			}
+			fireTeam.push(selectedPlayer);
+			// let member = roster
+			// 	.GetMembers()
+			// 	.find(
+			// 		(viewer) =>
+			// 			selectedPlayer?.destinyUsername === viewer.d2Username &&
+			// 			selectedPlayer.destinyId === viewer.d2Id
+			// 	);
+			// let member = roster.GetMember(selectedPlayer.destinyUsername, selectedPlayer.destinyId);
+			// member!.sessionCount++;
+			// console.log(member);
+			// const response = await fetch('/api/db/updatemember', {
+			// 	method: 'POST',
+			// 	headers: {
+			// 		'Content-Type': 'application/json'
+			// 	},
+			// 	body: JSON.stringify({ member })
+			// });
+			// if (!response.ok) {
+			// 	console.error(await response.json());
+			// }
 		}
 		selectedPlayer = null;
 		selectionPromise = null;
+	}
+
+	async function RemoveFromFireTeam(id: number) {
+		let member = roster.GetMember(fireTeam[id].destinyUsername, fireTeam[id].destinyId);
+		member!.sessionCount++;
+		console.log(member);
+		const response = await fetch('/api/db/updatemember', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ member })
+		});
+		if (!response.ok) {
+			console.error(await response.json());
+		}
+		fireTeam.splice(id, 1);
+	}
+
+	function ClearFireTeam() {
+		for (let i = 0; i < fireTeam.length; i++) {
+			RemoveFromFireTeam(i);
+		}
+		fireTeam = [];
 	}
 
 	function PlayerNotAvailable() {
@@ -65,12 +93,11 @@
 </script>
 
 <div class="h-full w-full max-w-2xl p-4">
-	<!-- Selected player component goes here -->
 	<div class="grid w-full grid-rows-[auto,auto] gap-y-2">
 		<div
 			class="mx-auto mb-4 h-24 w-full max-w-lg rounded-xl border border-b-slate-950 border-t-slate-700 bg-slate-900 drop-shadow-lg"
 		>
-			<div class="grid h-full grid-cols-[1fr,auto] items-center p-2">
+			<div class="grid h-full grid-cols-[1fr,auto] items-center p-4">
 				{#if selectionPromise}
 					{#await selectionPromise}
 						<div class="flex w-full items-center justify-center">
@@ -171,5 +198,43 @@
 				</div>
 			{/each}
 		</div>
+	</div>
+</div>
+<div class="h-full w-full max-w-2xl p-4">
+	<div class="scrollbar-hidden h-[calc(100vh-255px)] w-full scroll-smooth">
+		{#each fireTeam as player, id}
+			<div
+				class="mx-auto mb-4 h-24 w-full max-w-lg rounded-xl border border-b-slate-950 border-t-slate-700 bg-slate-900 drop-shadow-lg"
+			>
+				<div class="grid h-full grid-cols-[1fr,auto] items-center p-4">
+					<div
+						class="cursor-pointer space-y-1"
+						onclick={() => CopyToast(player)}
+						use:copy={`${player.destinyUsername}#${player.destinyId}`}
+					>
+						<div class="flex">
+							<h2 class="text-2xl font-bold">{player.destinyUsername}</h2>
+							<span>
+								<Button
+									variant="ghost"
+									class="-mt-1 ml-2 cursor-pointer rounded-lg px-2 hover:bg-primary/20"
+									><Icons.clipboardCopy class="m-auto h-full w-full" /></Button
+								>
+							</span>
+						</div>
+						<p class="font-light italic">#{player.destinyId}</p>
+					</div>
+					<div class="flex items-center">
+						<Button onclick={() => RemoveFromFireTeam(id)} variant="outline"><Icons.check /></Button
+						>
+					</div>
+				</div>
+			</div>
+		{/each}
+		{#if fireTeam.length > 0}
+			<div class="flex w-full">
+				<Button onclick={ClearFireTeam} class="mx-auto">End Fireteam</Button>
+			</div>
+		{/if}
 	</div>
 </div>

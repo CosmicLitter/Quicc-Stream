@@ -48,6 +48,6 @@
 <!-- 	{member.destinyUsername} -->
 <!-- {/each} -->
 
-<div class="flex h-[calc(100vh-130px)] w-full justify-center">
+<div class="flex h-[calc(100vh-130px)] w-full justify-around">
 	<QueueDashboard />
 </div>

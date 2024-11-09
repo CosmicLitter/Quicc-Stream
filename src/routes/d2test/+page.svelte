@@ -2,11 +2,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { getDestinyService } from '$lib/services/destiny';
+	import { roster } from '$lib/states/global.svelte';
 	import { onMount } from 'svelte';
 
 	const destinyService = getDestinyService();
 
 	let user = $state();
+	let userProfile = $state();
 	let displayName = $state('');
 	let code = $state('');
 	async function TestSearchUser(name: string, id: string) {
@@ -27,6 +29,15 @@
 		// }
 	}
 
+	async function GetUserProfile(name: string, id: string) {
+		const member = roster.GetMember(name, id);
+		if (!member) return;
+		userProfile = await destinyService.getUserProfile(
+			member.membershipType,
+			parseInt(member.membershipId)
+		);
+	}
+
 	onMount(() => {
 		// TestSearchUser('Ozzcold', '1699');
 	});
@@ -37,11 +48,22 @@
 
 <Button
 	onclick={async () => {
-		user = await TestSearchUser(displayName, code);
+		userProfile = await TestSearchUser(displayName, code);
 	}}
 >
 	Get user detail
 </Button>
 <pre>
 {JSON.stringify(user, null, 2)}
+</pre>
+
+<Button
+	onclick={async () => {
+		userProfile = await GetUserProfile(displayName, code);
+	}}
+>
+	Get Member Profile</Button
+>
+<pre>
+{JSON.stringify(userProfile, null, 2)}
 </pre>

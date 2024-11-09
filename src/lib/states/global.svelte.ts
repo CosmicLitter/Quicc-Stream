@@ -26,6 +26,10 @@ class Roster {
 		return this.members
 	}
 
+	GetMember(d2Username: string, d2Id: string) {
+		return this.members.find(member => member.d2Username === d2Username && member.d2Id === d2Id)
+	}
+
 
 }
 
@@ -42,7 +46,9 @@ export class QQueue {
 		return this.queue.map(entry => ({
 			destinyUsername: entry.destinyUsername,
 			destinyId: entry.destinyId,
-			probability: Number((entry.weight / totalWeight * 100).toFixed(2))
+			probability: Number((entry.weight / totalWeight * 100).toFixed(2)),
+			absences: entry.absences,
+			sessionCount: entry.sessionCount
 		}))
 	})
 	#open = $state(false);
@@ -212,4 +218,38 @@ export class QQueue {
 }
 
 export const roster = new Roster;
-export const qQueue = new QQueue;
+export const qQueue = new QQueue([
+	{
+		id: 1,
+		destinyUsername: "GuardianOne",
+		destinyId: "123456789",
+		twitchUsername: "GuardianOneTwitch",
+		youtubeUsername: "GuardianOneYT",
+		queueJoined: new Date("2024-11-01T10:00:00Z"),
+		sessionCount: 5,
+		absences: 1,
+		pityCount: 2,
+		weight: 10
+	},
+	{
+		id: 2,
+		destinyUsername: "WarlockMage",
+		destinyId: "987654321",
+		twitchUsername: "WarlockMageLive",
+		queueJoined: new Date("2024-11-01T10:30:00Z"),
+		sessionCount: 3,
+		absences: 0,
+		pityCount: 1,
+		weight: 8
+	},
+	{
+		id: 3,
+		destinyUsername: "TitanDefender",
+		destinyId: "456789123",
+		youtubeUsername: "TitanDefenderYT",
+		queueJoined: new Date("2024-11-01T11:00:00Z"),
+		sessionCount: 7,
+		absences: 2,
+		pityCount: 3,
+		weight: 15
+	}]);
