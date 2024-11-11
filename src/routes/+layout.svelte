@@ -9,12 +9,12 @@
 	import { browser } from '$app/environment';
 	import { PUBLIC_TWITCH_APP_CLIENT_ID, PUBLIC_YOUTUBE_API_KEY } from '$env/static/public';
 	import { qQueue, roster } from '$lib/states/global.svelte';
-	import { DestinyService, getDestinyService } from '$lib/services/destiny';
+	import { getDestinyService } from '$lib/services/destiny';
 	import type { Member } from '$lib/types';
 	import { toast } from 'svelte-sonner';
 	import { PubSubHandler } from '@twurple/pubsub';
 	import { twitchApi, pubSubClient } from '$lib/twitchauth';
-	import { duelList, nextDuelId } from '$lib/states/duels.svelte';
+	import { duels } from '$lib/states/duels.svelte';
 	import * as Popover from '$lib/components/ui/popover/index';
 	import { Label } from '$lib/components/ui/label';
 	import { Input } from '$lib/components/ui/input';
@@ -43,7 +43,6 @@
 	let reward_id = '00a32847-d11e-4997-bb9d-99209415728f';
 
 	// const destinyService = new DestinyService();
-	const destinyService = getDestinyService();
 
 	onMount(async () => {
 		roster.FetchMembers();
@@ -79,19 +78,19 @@
 			console.log(redemption);
 			console.log('DUEL REDEMPTION ID:', reward_id);
 			console.log('RECEIVED REDEMPTION ID 1: ', redemption.id, '2: ', redemption.rewardId);
-			if (redemption.rewardId == reward_id) {
-				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
-				duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
-				nextDuelId!.value++;
-				// SendChatMessage(`@${redemption.userDisplayName} has been added to the duel list`);
-			} else if (
+			// if (redemption.rewardId == reward_id) {
+			// 	console.log(`${redemption.userDisplayName} has redeemed a duel!`);
+			// 	duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
+			// 	nextDuelId!.value++;
+			if (
 				redemption.rewardTitle == 'A Duel' ||
 				redemption.rewardTitle == 'a_duel' ||
 				redemption.rewardTitle == 'a duel'
 			) {
 				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
-				duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
-				nextDuelId!.value++;
+				duels.Add(redemption.userDisplayName);
+				// duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
+				// nextDuelId!.value++;
 			}
 		});
 	}
@@ -535,6 +534,7 @@
 	}
 
 	async function LinkD2Account(message: string) {
+		const destinyService = getDestinyService();
 		const accountName = message.split('!link ')[1];
 
 		if (accountName && accountName.includes('#')) {
