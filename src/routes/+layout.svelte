@@ -43,6 +43,7 @@
 	let reward_id = '00a32847-d11e-4997-bb9d-99209415728f';
 
 	// const destinyService = new DestinyService();
+	const destinyService = getDestinyService();
 
 	onMount(async () => {
 		roster.FetchMembers();
@@ -78,11 +79,12 @@
 			console.log(redemption);
 			console.log('DUEL REDEMPTION ID:', reward_id);
 			console.log('RECEIVED REDEMPTION ID 1: ', redemption.id, '2: ', redemption.rewardId);
-			// if (redemption.rewardId == reward_id) {
-			// 	console.log(`${redemption.userDisplayName} has redeemed a duel!`);
-			// 	duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
-			// 	nextDuelId!.value++;
-			if (
+			if (redemption.rewardId == reward_id) {
+				console.log(`${redemption.userDisplayName} has redeemed a duel!`);
+				// duelList?.value.push({ id: nextDuelId!.value, username: redemption.userDisplayName });
+				// nextDuelId!.value++;
+				duels.Add(redemption.userDisplayName);
+			} else if (
 				redemption.rewardTitle == 'A Duel' ||
 				redemption.rewardTitle == 'a_duel' ||
 				redemption.rewardTitle == 'a duel'
@@ -534,7 +536,7 @@
 	}
 
 	async function LinkD2Account(message: string) {
-		const destinyService = getDestinyService();
+		// const destinyService = getDestinyService();
 		const accountName = message.split('!link ')[1];
 
 		if (accountName && accountName.includes('#')) {

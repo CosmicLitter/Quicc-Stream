@@ -14,6 +14,7 @@
 	let name = $state('');
 	let userName = $state('');
 
+	const destinyService = getDestinyService();
 	function HandleInput() {
 		duels.Add(name);
 		name = '';
@@ -21,7 +22,6 @@
 
 	async function Link(twitchUsername: string, accountName: string, id: number) {
 		console.log(twitchUsername, accountName);
-		const destinyService = getDestinyService();
 
 		if (!accountName || !accountName.includes('#')) {
 			toast.error('D2 account not formatted properly. Must include "#" followed by a 4 digit code');
